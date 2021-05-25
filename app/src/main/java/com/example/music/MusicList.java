@@ -1,7 +1,8 @@
-package com.example.music;
+ package com.example.music;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Objects;
 
 import android.Manifest;
 import android.os.Environment;
@@ -58,13 +59,12 @@ public class MusicList extends AppCompatActivity {
     public ArrayList<File> findSong(File file) {
         ArrayList<File> arrayList = new ArrayList<>();
         File[] files = file.listFiles();
-        for (File singlefile : files) {
-            if (singlefile.isDirectory() && !singlefile.isHidden()) {
-                arrayList.addAll(findSong(singlefile));
-
+        for (File singleFile : files != null ? files : new File[0]) {
+            if (singleFile.isDirectory() && !singleFile.isHidden()) {
+                arrayList.addAll(findSong(singleFile));
             } else {
-                if (singlefile.getName().endsWith(".mp3") || singlefile.getName().endsWith(".wav")) {
-                    arrayList.add(singlefile);
+                if (singleFile.getName().endsWith(".mp3") || singleFile.getName().endsWith(".wav")) {
+                    arrayList.add(singleFile);
                 }
             }
         }
