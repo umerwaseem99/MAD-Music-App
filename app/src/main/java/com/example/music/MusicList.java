@@ -41,7 +41,7 @@ public class MusicList extends AppCompatActivity {
 
     ListView listView;
     public ArrayList<String> items;
-
+    int i;//faaltu
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
