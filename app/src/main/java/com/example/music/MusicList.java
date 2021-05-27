@@ -102,19 +102,22 @@ public class MusicList extends AppCompatActivity {
             e.printStackTrace();
         }
 
+      //Ye video se dekha hai hai ispr errors aray hain
+
           /*  listView.setOnClickListener(new AdapterView.OnItemClickListener() {
                 @Override
                 public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                         String songName = (String)listView.getItemAtPosition(position);
-                        startActivity(new Intent(getApplicationContext(),playerActivity.class).putExtra("songs", mySong).putExtra("songname",songName).putExtra("pos", position));
+                        startActivity(new Intent(getApplicationContext(),Activityplayer.class).putExtra("songs", mySong).putExtra("songname",songName).putExtra("pos", position));
 
                 }*/
-            });
+    }//);
 
     }
+//aapka code update kia uskay baad se yahan error aray
 
 
-        class customAdapter extends BaseAdapter{
+   /*     class customAdapter extends BaseAdapter{
 
 
             @Override
@@ -141,4 +144,4 @@ public class MusicList extends AppCompatActivity {
                 return view;
             }
         }
-    }
+    }*/
