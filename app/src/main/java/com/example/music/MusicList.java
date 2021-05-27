@@ -4,9 +4,11 @@ import java.io.File;
 import java.util.ArrayList;
 
 import android.Manifest;
+import android.database.Cursor;
 import android.content.Intent;
 import android.database.Cursor;
 import android.os.Environment;
+import android.provider.MediaStore;
 import android.provider.MediaStore;
 import android.view.View;
 import android.view.ViewGroup;
@@ -16,11 +18,18 @@ import android.widget.ArrayAdapter;
 import android.widget.BaseAdapter;
 import android.widget.ListView;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.os.Bundle;
 import android.widget.TextView;
 
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.gms.tasks.Task;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.ListResult;
+import com.google.firebase.storage.StorageReference;
 import com.karumi.dexter.Dexter;
 import com.karumi.dexter.PermissionToken;
 import com.karumi.dexter.listener.PermissionDeniedResponse;
@@ -37,12 +46,31 @@ public class MusicList extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_musiclist);
+        // Get firebase storage instance and set root reference for music files
+        FirebaseStorage storage = FirebaseStorage.getInstance();
+        Task<ListResult> listRef = storage.getReference().listAll();
+        listRef.addOnSuccessListener(new OnSuccessListener<ListResult>() {
+            @Override
+            public void onSuccess(ListResult listResult) {
+                for (StorageReference prefix : listResult.getPrefixes()) {
+                    // All the prefixes under listRef.
+                    // You may call listAll() recursively on them.
+                }
 
+                for (StorageReference item : listResult.getItems()) {
+                    // All the items under listRef.
+                }
+            }
+        }).addOnFailureListener(new OnFailureListener() {
+            @Override
+            public void onFailure(@NonNull Exception e) {
+                // Uh-oh, an error occurred!
+            }
+        });
 
         getSupportActionBar().hide();
         listView = findViewById(R.id.songlist);
         runtimePermission();
-
     }
 
     public void runtimePermission() {
@@ -63,6 +91,7 @@ public class MusicList extends AppCompatActivity {
                     }
                 }).check();
     }
+
     public ArrayList<String> findSong() {
         String selection = MediaStore.Audio.Media.IS_MUSIC + " != 0";
         String[] projection = {
@@ -83,8 +112,8 @@ public class MusicList extends AppCompatActivity {
 
         ArrayList<String> songs = new ArrayList<String>();
         while (cursor.moveToNext()) {
-            int time =Integer.parseInt(cursor.getString(5));
-            time = time/(1000*60);
+            int time = Integer.parseInt(cursor.getString(5));
+            time = time / (1000 * 60);
             songs.add(cursor.getString(1) + " " + cursor.getString(2) + " " + cursor.getString(4) + " " + time);
         }
         return songs;
