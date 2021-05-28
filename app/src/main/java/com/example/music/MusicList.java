@@ -1,12 +1,14 @@
- package com.example.music;
+package com.example.music;
 
 import java.io.File;
 import java.util.ArrayList;
 
 import android.Manifest;
+import android.content.ContentUris;
 import android.database.Cursor;
 import android.content.Intent;
 import android.database.Cursor;
+import android.net.Uri;
 import android.os.Environment;
 import android.provider.MediaStore;
 import android.provider.MediaStore;
@@ -40,8 +42,9 @@ import com.karumi.dexter.listener.single.PermissionListener;
 public class MusicList extends AppCompatActivity {
 
     ListView listView;
-    public ArrayList<String> items;
+    public ArrayList<String> items = new ArrayList<>();
     int i;//faaltu
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -92,7 +95,7 @@ public class MusicList extends AppCompatActivity {
                 }).check();
     }
 
-    public ArrayList<String> findSong() {
+    public ArrayList<Uri> findSong() {
         String selection = MediaStore.Audio.Media.IS_MUSIC + " != 0";
         String[] projection = {
                 MediaStore.Audio.Media._ID,
@@ -100,7 +103,7 @@ public class MusicList extends AppCompatActivity {
                 MediaStore.Audio.Media.TITLE,
                 MediaStore.Audio.Media.DATA,
                 MediaStore.Audio.Media.DISPLAY_NAME,
-                MediaStore.Audio.Media.DURATION
+                MediaStore.Audio.Media.DURATION,
         };
 
         Cursor cursor = this.managedQuery(
@@ -109,40 +112,43 @@ public class MusicList extends AppCompatActivity {
                 selection,
                 null,
                 null);
-
-        ArrayList<String> songs = new ArrayList<String>();
+        int idColumn = cursor.getColumnIndexOrThrow(MediaStore.Audio.Media._ID);
+        ArrayList<Uri> uris = new ArrayList<>();
         while (cursor.moveToNext()) {
+            long id = cursor.getLong(idColumn);
             int time = Integer.parseInt(cursor.getString(5));
             time = time / (1000 * 60);
-            songs.add(cursor.getString(1) + " " + cursor.getString(2) + " " + cursor.getString(4) + " " + time);
+            items.add(cursor.getString(1) + " " + cursor.getString(2) + " " + cursor.getString(4) + " " + time + " ");
+            Uri contentUri = ContentUris.withAppendedId(
+                    MediaStore.Audio.Media.EXTERNAL_CONTENT_URI, id);
+            uris.add(contentUri);
         }
-        return songs;
+        cursor.close();
+        return uris;
     }
 
 
     public void displaySongs() {
+        ArrayList<Uri> uris = new ArrayList<>();
         try {
-//            Environment.getExternalStorageDirectory()
-//            final ArrayList<String> mySongs = findSong();
-            items = findSong();
+            uris = findSong();
             ArrayAdapter<String> myAdapter = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, items);
             listView.setAdapter(myAdapter);
         } catch (Exception e) {
             e.printStackTrace();
         }
 
-      //Ye video se dekha hai hai ispr errors aray hain
-
-          /*  listView.setOnClickListener(new AdapterView.OnItemClickListener() {
-                @Override
-                public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                        String songName = (String)listView.getItemAtPosition(position);
-                        startActivity(new Intent(getApplicationContext(),Activityplayer.class).putExtra("songs", mySong).putExtra("songname",songName).putExtra("pos", position));
-
-                }*/
-    }//);
-
+        //Fixed by subhan
+        ArrayList<Uri> finalUris = uris;
+        listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                String songName = (String) listView.getItemAtPosition(position);
+                startActivity(new Intent(getApplicationContext(), Activityplayer.class).putExtra("uris", finalUris).putExtra("songs", items).putExtra("songname", songName).putExtra("pos", position));
+            }
+        });
     }
+}
 //aapka code update kia uskay baad se yahan error aray
 
 
