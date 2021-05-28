@@ -1,30 +1,22 @@
 package com.example.music;
-
-import java.io.File;
 import java.util.ArrayList;
 
 import android.Manifest;
 import android.content.ContentUris;
 import android.database.Cursor;
 import android.content.Intent;
-import android.database.Cursor;
 import android.net.Uri;
-import android.os.Environment;
 import android.provider.MediaStore;
-import android.provider.MediaStore;
+import android.util.Log;
 import android.view.View;
-import android.view.ViewGroup;
-import android.widget.Adapter;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
-import android.widget.BaseAdapter;
 import android.widget.ListView;
+import android.os.Bundle;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
-import android.os.Bundle;
-import android.widget.TextView;
 
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
@@ -43,7 +35,6 @@ public class MusicList extends AppCompatActivity {
 
     ListView listView;
     public ArrayList<String> items = new ArrayList<>();
-    int i;//faaltu
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -55,13 +46,9 @@ public class MusicList extends AppCompatActivity {
         listRef.addOnSuccessListener(new OnSuccessListener<ListResult>() {
             @Override
             public void onSuccess(ListResult listResult) {
-                for (StorageReference prefix : listResult.getPrefixes()) {
-                    // All the prefixes under listRef.
-                    // You may call listAll() recursively on them.
-                }
-
                 for (StorageReference item : listResult.getItems()) {
                     // All the items under listRef.
+                    Log.d("FirebaseItem", item.getName());
                 }
             }
         }).addOnFailureListener(new OnFailureListener() {
@@ -138,7 +125,6 @@ public class MusicList extends AppCompatActivity {
             e.printStackTrace();
         }
 
-        //Fixed by subhan
         ArrayList<Uri> finalUris = uris;
         listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
@@ -150,11 +136,7 @@ public class MusicList extends AppCompatActivity {
     }
 }
 //aapka code update kia uskay baad se yahan error aray
-
-
    /*     class customAdapter extends BaseAdapter{
-
-
             @Override
             public int getCount() {
                 return items.length;
