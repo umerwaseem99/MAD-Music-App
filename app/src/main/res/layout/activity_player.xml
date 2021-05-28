@@ -34,15 +34,14 @@
             android:gravity="center_horizontal" />
 
 
-            <ImageView
-                android:layout_width="250dp"
-                android:layout_height="250dp"
-                android:id="@+id/playerimage"
-                android:layout_marginBottom="8dp"
-                android:layout_marginLeft="65dp"
+        <ImageView
+            android:layout_width="250dp"
+            android:layout_height="250dp"
+            android:id="@+id/playerimage"
+            android:layout_marginBottom="8dp"
+            android:layout_marginLeft="65dp"
 
-                android:src="@drawable/cd"
-                ></ImageView>
+            android:src="@drawable/cd" />
 
 
             <RelativeLayout
@@ -71,7 +70,7 @@
                     android:text="0:10"
                     android:textSize="15sp"
                     android:textColor="@color/white"
-                    android:layout_height="wrap_content"></TextView>
+                    android:layout_height="wrap_content" />
 
 
                 <TextView
@@ -84,7 +83,7 @@
                     android:text="4:10"
                     android:textSize="15sp"
                     android:textColor="@color/white"
-                    android:layout_height="wrap_content"></TextView>
+                    android:layout_height="wrap_content" />
 
 
             </RelativeLayout>
@@ -94,11 +93,14 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:weight="3"
-        tools:ignore="Suspicious0dp">
+        android:layout_weight="3"
+        tools:ignore="Suspicious0dp"
+        >
         <RelativeLayout
             android:layout_height="match_parent"
-            android:layout_width="match_parent">
+            android:layout_width="match_parent"
+            android:layout_weight="0"
+            >
 
             <Button
                 android:layout_width="70dp"
@@ -107,14 +109,15 @@
                 android:layout_centerHorizontal="true"
                 android:background="@drawable/pause"
 
-                ></Button>
+                />
+
             <Button
                 android:id="@+id/btnnext"
                 android:layout_width="50dp"
                 android:layout_marginTop="15dp"
                 android:layout_height="50dp"
                 android:background="@drawable/skip_next"
-                android:layout_toRightOf="@id/playbtn"></Button>
+                android:layout_toRightOf="@id/playbtn" />
 
             <Button
                 android:id="@+id/btnpre"
@@ -122,7 +125,7 @@
                 android:layout_marginTop="15dp"
                 android:layout_height="50dp"
                 android:background="@drawable/skip_previous"
-                android:layout_toLeftOf="@id/playbtn"></Button>
+                android:layout_toLeftOf="@id/playbtn" />
 
             <Button
                 android:layout_width="40dp"
@@ -131,8 +134,7 @@
                 android:layout_marginTop="20dp"
                 android:layout_marginLeft="15dp"
                 android:layout_toRightOf="@id/btnnext"
-                android:background="@drawable/fast_forward"
-                ></Button>
+                android:background="@drawable/fast_forward" />
 
             <Button
                 android:layout_width="40dp"
@@ -141,8 +143,7 @@
                 android:layout_marginTop="20dp"
                 android:layout_marginRight="15dp"
                 android:layout_toLeftOf="@id/btnpre"
-                android:background="@drawable/fast_rewind"
-                ></Button>
+                android:background="@drawable/fast_rewind" />
 
             <com.gauravk.audiovisualizer.visualizer.BarVisualizer
                 xmlns:custom="http://schemas.android.com/apk/res-auto"
