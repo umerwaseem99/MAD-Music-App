@@ -1,4 +1,5 @@
 package com.example.music;
+
 import java.util.ArrayList;
 
 import android.Manifest;
@@ -105,7 +106,7 @@ public class MusicList extends AppCompatActivity {
             long id = cursor.getLong(idColumn);
             int time = Integer.parseInt(cursor.getString(5));
             time = time / (1000 * 60);
-            items.add(cursor.getString(1) + " " + cursor.getString(2) + " " + cursor.getString(4) + " " + time + " ");
+            items.add(cursor.getString(1) + ",_" + cursor.getString(2) + ",_" + cursor.getString(4) + ",_" + time );
             Uri contentUri = ContentUris.withAppendedId(
                     MediaStore.Audio.Media.EXTERNAL_CONTENT_URI, id);
             uris.add(contentUri);
