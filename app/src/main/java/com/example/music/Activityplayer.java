@@ -17,18 +17,19 @@ import android.widget.TextView;
 import com.gauravk.audiovisualizer.visualizer.BarVisualizer;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 
 public class Activityplayer extends AppCompatActivity {
 
-    Button btnplay, btnnext, btnpre, btnff, btnfr;
-    TextView txtsname, txtsstart, txtsstop;
-    SeekBar seekmusic;
+    Button btnplay, btnnext, btnpre;
+    TextView txtsname, txtstart, txtstop;
+    SeekBar sekbar;
     BarVisualizer visualizer;
-    ImageView imageview;
+    ImageView playerimage;
     String sname;
     public static final String EXTRA_NAME = "song_name";
-    static MediaPlayer mediaPlayer;
+    MediaPlayer mediaPlayer;
     int position;
 //    ArrayList<File> mySongs;
 
@@ -37,18 +38,15 @@ public class Activityplayer extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_player);
 
-
-        btnff = findViewById(R.id.btbff);
-        btnfr = findViewById(R.id.btnfr);
         btnnext = findViewById(R.id.btnnext);
         btnplay = findViewById(R.id.playbtn);
         btnpre = findViewById(R.id.btnpre);
         txtsname = findViewById(R.id.txtxn);
-        txtsstart = findViewById(R.id.txtstart);
-        txtsstop = findViewById(R.id.txtstop);
-        seekmusic = findViewById(R.id.sekbar);
+        txtstart = findViewById(R.id.txtstart);
+        txtstop = findViewById(R.id.txtstop);
+        sekbar = findViewById(R.id.sekbar);
         visualizer = findViewById(R.id.blast);
-        imageview = findViewById(R.id.imageView);
+        playerimage = findViewById(R.id.playerimage);
 
         if (mediaPlayer != null) {
             mediaPlayer.stop();
@@ -60,13 +58,14 @@ public class Activityplayer extends AppCompatActivity {
         String songName = i.getStringExtra("songname");
         position = bundle.getInt("pos", 0);
         txtsname.setSelected(true);
+        ArrayList<String> songs = (ArrayList) bundle.getParcelableArrayList("songs");
         Uri uri = Uri.parse(uris.get(position).toString());
-//        Uri uri = Uri.parse(bundle.get("uri").toString());
         sname = songName;
         txtsname.setText(sname);
 
         mediaPlayer = MediaPlayer.create(getApplicationContext(), uri);
         mediaPlayer.start();
+        startAnimation();
         btnplay.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -77,34 +76,100 @@ public class Activityplayer extends AppCompatActivity {
                     btnplay.setBackgroundResource(R.drawable.pause);
                     mediaPlayer.start();
                 }
-
             }
         });
 
-
-        //Ye complete krna hai apun ko abhi
-/*
-        View.OnClickListener(new View.OnClickListener() {
+        btnnext.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                mediaPlayer.stop();
-                mediaPlayer.release();
-                position = ((position+1)%mySongs.size());
-                Uri u = Uri.parse()
+                position++;
+                if (position <= songs.size() - 1) {
+                    try {
+                        mediaPlayer.reset();
+                        mediaPlayer.setDataSource(getApplicationContext(), Uri.parse(uris.get(position).toString()));
+                        mediaPlayer.prepare();
+                        mediaPlayer.start();
+                        String tem = songs.get(position).split(",_")[2].toString();
+                        txtsname.setText(tem);
+
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                }
             }
-        })*/
+        });
+        btnpre.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                position--;
+                if (position >= 0) {
+                    try {
+                        mediaPlayer.reset();
+                        mediaPlayer.setDataSource(getApplicationContext(), Uri.parse(uris.get(position).toString()));
+                        mediaPlayer.prepare();
+                        mediaPlayer.start();
+                        String tem = songs.get(position).split(",_")[2].toString();
+                        txtsname.setText(tem);
 
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                }
+            }
+        });
+        btnnext.setOnLongClickListener(new View.OnLongClickListener() {
+            @Override
+            public boolean onLongClick(View v) {
+                int p = mediaPlayer.getCurrentPosition();
+                mediaPlayer.seekTo(p + 5000);
+                return true;
+            }
+        });
+        btnpre.setOnLongClickListener(new View.OnLongClickListener() {
+            @Override
+            public boolean onLongClick(View v) {
+                int p = mediaPlayer.getCurrentPosition();
+                mediaPlayer.seekTo(p - 5000);
+                return true;
+            }
+        });
+        sekbar.setMax(mediaPlayer.getDuration());
+        sekbar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+            @Override
+            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+                mediaPlayer.seekTo(progress);
+            }
 
+            @Override
+            public void onStartTrackingTouch(SeekBar seekBar) {
+
+            }
+
+            @Override
+            public void onStopTrackingTouch(SeekBar seekBar) {
+
+            }
+        });
+//        bekbarTimeUpdate(mediaPlayer,);
     }
 
-    public void startAnimation(View view) {
 
-        ObjectAnimator animator = ObjectAnimator.ofFloat(imageview, "rotation", 0f, 360f);
+//    public void bekbarTimeUpdate  (MediaPlayer mediaplayer,){
+//        Runnable UpdateSongTime = new Runnable() {
+//            @Override
+//            public void run() {
+//                int starttime = mediaplayer.getCurrentPosition();
+//
+//            }
+//        };
+//
+//    }
+
+    public void startAnimation() {
+        ObjectAnimator animator = ObjectAnimator.ofFloat(playerimage, "rotation", 0f, 360f);
         animator.setDuration(1000);
         AnimatorSet animatorSet = new AnimatorSet();
         animatorSet.playTogether(animator);
         animatorSet.start();
-
-
     }
 }
