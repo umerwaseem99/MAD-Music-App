@@ -84,8 +84,12 @@ public class Activityplayer extends AppCompatActivity {
         mediaPlayer.start();
         /**
          * Working on notification
-         * CreateNotification.createNotification(Activityplayer.this, Track.gets());
          */
+        String[] item = songs.get(position).split(",_");
+        Track track = new Track(item[2], item[1]);
+        CreateNotification.createNotification(Activityplayer.this, track, R.drawable.pause,
+                position, songs.size() - 1);
+
         startAnimation();
         btnplay.setOnClickListener(new View.OnClickListener() {
             @Override

@@ -3,12 +3,10 @@ package com.example.music;
 public class Track {
     private String title;
     private String artist;
-    private int image;
 
-    public Track(String title, String artist, int image) {
+    public Track(String title, String artist) {
         this.title = title;
         this.artist = artist;
-        this.image = image;
     }
 
     public String getTitle() {
@@ -25,13 +23,5 @@ public class Track {
 
     public void setArtist(String artist) {
         this.artist = artist;
-    }
-
-    public int getImage() {
-        return image;
-    }
-
-    public void setImage(int image) {
-        this.image = image;
     }
 }

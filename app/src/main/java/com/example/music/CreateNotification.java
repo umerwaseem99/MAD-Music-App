@@ -23,7 +23,7 @@ public class CreateNotification {
             NotificationManagerCompat notificationManagerCompat = NotificationManagerCompat.from(context);
             MediaSessionCompat mediaSessionCompat = new MediaSessionCompat(context, "tag");
 
-            Bitmap icon = BitmapFactory.decodeResource(context.getResources(), track.getImage());
+            Bitmap icon = BitmapFactory.decodeResource(context.getResources(), R.drawable.logo);
 
 //            create notification
             notification = new NotificationCompat.Builder(context, CHANNNEL_ID)
