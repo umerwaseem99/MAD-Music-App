@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#BF5D55"
+    android:background="#FFF3E0"
     tools:context=".MusicList">
 
     <TextView
@@ -12,6 +12,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="14dp"
+        android:width="390dp"
         android:text="MUSIC LIST"
         android:textColor="#000000"
         android:textSize="34sp"

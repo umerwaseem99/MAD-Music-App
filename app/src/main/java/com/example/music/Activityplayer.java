@@ -4,9 +4,12 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import android.animation.AnimatorSet;
 import android.animation.ObjectAnimator;
+import android.app.NotificationChannel;
+import android.app.NotificationManager;
 import android.content.Intent;
 import android.media.MediaPlayer;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
@@ -27,10 +30,23 @@ public class Activityplayer extends AppCompatActivity {
     BarVisualizer visualizer;
     ImageView imageview;
     String sname;
+    NotificationManager notificationManager;
+
     public static final String EXTRA_NAME = "song_name";
     static MediaPlayer mediaPlayer;
     int position;
 //    ArrayList<File> mySongs;
+
+    private void createChannel() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            NotificationChannel channel = new NotificationChannel(
+                    CreateNotification.CHANNNEL_ID, "TEST DEV", NotificationManager.IMPORTANCE_LOW);
+            notificationManager = getSystemService(NotificationManager.class);
+            if (notificationManager != null) {
+                notificationManager.createNotificationChannel(channel);
+            }
+        }
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -65,8 +81,13 @@ public class Activityplayer extends AppCompatActivity {
         sname = songName;
         txtsname.setText(sname);
 
+        createChannel();
         mediaPlayer = MediaPlayer.create(getApplicationContext(), uri);
         mediaPlayer.start();
+        /**
+         * Working on notification
+         * CreateNotification.createNotification(Activityplayer.this, Track.gets());
+         */
         btnplay.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
