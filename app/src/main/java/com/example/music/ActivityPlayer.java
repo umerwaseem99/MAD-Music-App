@@ -121,6 +121,7 @@ public class ActivityPlayer extends AppCompatActivity implements Playable {
                 String action = intent.getExtras().getString("actionname");
                 switch (action) {
                     case CreateNotification.ACTION_PREVIOUS:
+                        position--;
                         String[] item1 = songs.get(position).split(",_");
                         Track track1 = new Track(item1[2], item1[1]);
                         onTrackPrevious(track1, uris, songs, item1[2]);
@@ -133,6 +134,7 @@ public class ActivityPlayer extends AppCompatActivity implements Playable {
                             mediaPlayer.stop();
                         }
                     case CreateNotification.ACTION_NEXT:
+                        position++;
                         String[] item2 = songs.get(position).split(",_");
                         Track track2 = new Track(item2[2], item2[1]);
                         onTrackNext(track2, uris, songs, item2[2]);
@@ -149,12 +151,14 @@ public class ActivityPlayer extends AppCompatActivity implements Playable {
          * Events for media player
          */
         btnnext.setOnClickListener(v -> {
+            position++;
             String[] item1 = songs.get(position).split(",_");
             Track track1 = new Track(item1[2], item1[1]);
             onTrackNext(track1, uris, songs, item1[1] + "\n" + item1[0]);
         });
 
         btnpre.setOnClickListener(v -> {
+            position--;
             String[] item1 = songs.get(position).split(",_");
             Track track1 = new Track(item1[2], item1[1]);
             onTrackPrevious(track1, uris, songs, item1[1] + "\n" + item1[0]);
@@ -216,8 +220,7 @@ public class ActivityPlayer extends AppCompatActivity implements Playable {
 
     @Override
     public void onTrackPrevious(Track track, ArrayList<Uri> uris, ArrayList<String> songs, String sName) {
-        position--;
-        if (position >= 0) {
+        if (position > 0) {
             try {
                 mediaPlayer.reset();
                 mediaPlayer.setDataSource(getApplicationContext(), Uri.parse(uris.get(position).toString()));
@@ -252,8 +255,7 @@ public class ActivityPlayer extends AppCompatActivity implements Playable {
 
     @Override
     public void onTrackNext(Track track, ArrayList<Uri> uris, ArrayList<String> songs, String sName) {
-        position++;
-        if (position <= songs.size() - 1) {
+        if (position <= songs.size()) {
             try {
                 mediaPlayer.reset();
                 mediaPlayer.setDataSource(getApplicationContext(), Uri.parse(uris.get(position).toString()));
