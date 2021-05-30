@@ -4,9 +4,9 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:alpha="0.7"
     android:background="@drawable/musicback"
     android:orientation="vertical"
-    android:alpha="0.8"
     android:weightSum="10"
     tools:context=".ActivityPlayer">
 
@@ -19,19 +19,19 @@
 
         <TextView
             android:id="@+id/txtxn"
-            android:layout_height="wrap_content"
             android:layout_width="match_parent"
+            android:layout_height="wrap_content"
             android:layout_margin="20dp"
             android:ellipsize="marquee"
+            android:gravity="center_horizontal"
             android:marqueeRepeatLimit="marquee_forever"
             android:padding="10dp"
             android:text="SONG NAME"
-            android:textColor="#FFF"
-            android:textSize="24dp"
             android:textAlignment="center"
+            android:textColor="#FFF"
 
-            android:textStyle="italic"
-            android:gravity="center_horizontal" />
+            android:textSize="24dp"
+            android:textStyle="italic" />
 
 
         <ImageView
@@ -40,54 +40,54 @@
             android:layout_height="250dp"
             android:layout_gravity="center"
             android:layout_marginBottom="8dp"
-            android:background="#80FFFFFF"
             android:padding="20dp"
             android:src="@drawable/cd" />
 
 
-            <RelativeLayout
-                android:layout_width="match_parent"
-                android:layout_height="60dp">
-                <SeekBar
-                    android:id="@+id/sekbar"
-                    android:layout_centerInParent="true"
-                    android:layout_alignParentBottom="true"
-                    android:layout_margin="20dp"
-                    android:layout_marginBottom="40dp"
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="60dp">
+
+            <SeekBar
+                android:id="@+id/sekbar"
+                android:layout_width="250dp"
+                android:layout_height="wrap_content"
+                android:layout_alignParentBottom="true"
+                android:layout_centerInParent="true"
 
 
-                    android:layout_width="250dp"
-                    android:layout_height="wrap_content">
+                android:layout_margin="20dp"
+                android:layout_marginBottom="40dp">
 
-                </SeekBar>
+            </SeekBar>
 
-                <TextView
-                    android:id="@+id/txtstart"
-                    android:layout_toLeftOf="@id/sekbar"
-                    android:layout_centerInParent="true"
-                    android:layout_width="wrap_content"
-                    android:layout_alignParentLeft="false"
-                    android:layout_marginLeft="20dp"
-                    android:text="0:10"
-                    android:textSize="15sp"
-                    android:textColor="@color/white"
-                    android:layout_height="wrap_content" />
-
-
-                <TextView
-                    android:id="@+id/txtstop"
-                    android:layout_toRightOf="@id/sekbar"
-                    android:layout_centerInParent="true"
-                    android:layout_width="wrap_content"
-                    android:layout_alignParentRight="false"
-                    android:layout_marginRight="20dp"
-                    android:text="4:10"
-                    android:textSize="15sp"
-                    android:textColor="@color/white"
-                    android:layout_height="wrap_content" />
+            <TextView
+                android:id="@+id/txtstart"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentLeft="false"
+                android:layout_centerInParent="true"
+                android:layout_marginLeft="20dp"
+                android:layout_toLeftOf="@id/sekbar"
+                android:text="0:00"
+                android:textColor="@color/white"
+                android:textSize="15sp" />
 
 
-            </RelativeLayout>
+            <TextView
+                android:id="@+id/txtstop"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentRight="false"
+                android:layout_centerInParent="true"
+                android:layout_marginRight="20dp"
+                android:layout_toRightOf="@id/sekbar"
+                android:text="4:10"
+                android:textColor="@color/white"
+                android:textSize="15sp" />
+
+
+        </RelativeLayout>
     </LinearLayout>
 
 
@@ -95,13 +95,12 @@
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="3"
-        tools:ignore="Suspicious0dp"
-        >
+        tools:ignore="Suspicious0dp">
+
         <RelativeLayout
-            android:layout_height="match_parent"
             android:layout_width="match_parent"
-            android:layout_weight="0"
-            >
+            android:layout_height="match_parent"
+            android:layout_weight="0">
 
             <Button
                 android:id="@+id/playbtn"
@@ -130,22 +129,20 @@
                 android:background="@drawable/skip_previous"
                 app:backgroundTint="#FFE0B2" />
 
-            <com.gauravk.audiovisualizer.visualizer.BarVisualizer
-                xmlns:custom="http://schemas.android.com/apk/res-auto"
+            <com.gauravk.audiovisualizer.visualizer.BarVisualizer xmlns:custom="http://schemas.android.com/apk/res-auto"
                 android:id="@+id/bar"
                 android:layout_width="match_parent"
                 android:layout_height="60dp"
                 android:layout_alignParentBottom="true"
-                custom:avDensity="0.6"
-                custom:avWidth="4dp"
                 custom:avColor="#FF362E"
-                custom:avSpeed="normal"/>
+                custom:avDensity="0.6"
+                custom:avSpeed="normal"
+                custom:avWidth="4dp" />
 
         </RelativeLayout>
 
 
-
-        </LinearLayout>
+    </LinearLayout>
 
 </LinearLayout>
 

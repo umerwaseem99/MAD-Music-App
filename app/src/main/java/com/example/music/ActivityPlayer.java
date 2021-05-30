@@ -15,6 +15,7 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.view.View;
+import android.view.animation.Animation;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.SeekBar;
@@ -201,10 +202,12 @@ public class ActivityPlayer extends AppCompatActivity implements Playable {
 
     public void startAnimation(Boolean isPlaying) {
         ObjectAnimator animator = ObjectAnimator.ofFloat(playerimage, "rotation", 0f, 360f);
-//        animator.setDuration();
+        animator.setDuration(2500);
+        animator.setRepeatCount(Animation.INFINITE);
         AnimatorSet animatorSet = new AnimatorSet();
-        animatorSet.playTogether(animator);
+
         if (isPlaying) {
+            animatorSet.playTogether(animator);
             animatorSet.start();
         } else {
             animatorSet.cancel();
