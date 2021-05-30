@@ -64,6 +64,7 @@ public class ActivityPlayer extends AppCompatActivity implements Playable {
         sekbar = findViewById(R.id.sekbar);
         playerimage = findViewById(R.id.playerimage);
 
+        getSupportActionBar().hide();
 
         if (mediaPlayer != null) {
             mediaPlayer.stop();
