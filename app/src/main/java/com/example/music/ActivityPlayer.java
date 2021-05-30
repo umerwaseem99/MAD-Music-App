@@ -6,7 +6,10 @@ import android.animation.AnimatorSet;
 import android.animation.ObjectAnimator;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
+import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.media.MediaPlayer;
 import android.net.Uri;
 import android.os.Build;
@@ -17,12 +20,13 @@ import android.widget.ImageView;
 import android.widget.SeekBar;
 import android.widget.TextView;
 
+import com.example.music.Services.OnClearFromRecentService;
 import com.gauravk.audiovisualizer.visualizer.BarVisualizer;
 
 import java.io.IOException;
 import java.util.ArrayList;
 
-public class ActivityPlayer extends AppCompatActivity {
+public class ActivityPlayer extends AppCompatActivity implements Playable {
 
     Button btnplay, btnnext, btnpre;
     TextView txtsname, txtstart, txtstop;
@@ -31,7 +35,7 @@ public class ActivityPlayer extends AppCompatActivity {
     ImageView playerimage;
     String sname;
     NotificationManager notificationManager;
-
+    BroadcastReceiver broadcastReceiver;
     public static final String EXTRA_NAME = "song_name";
     MediaPlayer mediaPlayer;
     int position;
@@ -39,7 +43,7 @@ public class ActivityPlayer extends AppCompatActivity {
     private void createChannel() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             NotificationChannel channel = new NotificationChannel(
-                    CreateNotification.CHANNNEL_ID, "TEST DEV", NotificationManager.IMPORTANCE_LOW);
+                    CreateNotification.CHANNEL_ID, "TEST DEV", NotificationManager.IMPORTANCE_LOW);
             notificationManager = getSystemService(NotificationManager.class);
             if (notificationManager != null) {
                 notificationManager.createNotificationChannel(channel);
@@ -59,7 +63,7 @@ public class ActivityPlayer extends AppCompatActivity {
         txtstart = findViewById(R.id.txtstart);
         txtstop = findViewById(R.id.txtstop);
         sekbar = findViewById(R.id.sekbar);
-        visualizer = findViewById(R.id.blast);
+        visualizer = findViewById(R.id.bar);
         playerimage = findViewById(R.id.playerimage);
 
         if (mediaPlayer != null) {
@@ -74,12 +78,20 @@ public class ActivityPlayer extends AppCompatActivity {
         txtsname.setSelected(true);
         ArrayList<String> songs = (ArrayList) bundle.getParcelableArrayList("songs");
         Uri uri = Uri.parse(uris.get(position).toString());
-        sname = songName;
+        String[] sNameArr = songName.split(",_");
+        sname = sNameArr[1] + "\n" + sNameArr[0];
         txtsname.setText(sname);
 
-        createChannel();
         mediaPlayer = MediaPlayer.create(getApplicationContext(), uri);
         mediaPlayer.start();
+        /* For bar visualizer. Not working currently */
+//        try {
+//            int audioSessionId = mediaPlayer.getAudioSessionId();
+//            if (audioSessionId != -1)
+//                visualizer.setAudioSessionId(audioSessionId);
+//        } catch (Exception e) {
+//            e.printStackTrace();
+//        }
         /**
          * Working on notification
          */
@@ -93,54 +105,58 @@ public class ActivityPlayer extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 if (mediaPlayer.isPlaying()) {
-                    btnplay.setBackgroundResource(R.drawable.play);
-                    startAnimation(mediaPlayer.isPlaying());
+                    onTrackPlay(track, uris, songs, item[2]);
                     mediaPlayer.pause();
                 } else {
-                    btnplay.setBackgroundResource(R.drawable.pause);
-                    startAnimation(mediaPlayer.isPlaying());
+                    onTrackPause(track, uris, songs, item[2]);
                     mediaPlayer.start();
                 }
             }
         });
 
+        broadcastReceiver = new BroadcastReceiver() {
+            @Override
+            public void onReceive(Context context, Intent intent) {
+                String action = intent.getExtras().getString("actionname");
+                switch (action) {
+                    case CreateNotification.ACTION_PREVIOUS:
+                        String[] item1 = songs.get(position).split(",_");
+                        Track track1 = new Track(item1[2], item1[1]);
+                        onTrackPrevious(track1, uris, songs, item1[2]);
+                    case CreateNotification.ACTION_PLAY:
+                        if (mediaPlayer.isPlaying()) {
+                            onTrackPause(track, uris, songs, item[2]);
+                            mediaPlayer.start();
+                        } else {
+                            onTrackPlay(track, uris, songs, item[2]);
+                            mediaPlayer.stop();
+                        }
+                    case CreateNotification.ACTION_NEXT:
+                        String[] item2 = songs.get(position).split(",_");
+                        Track track2 = new Track(item2[2], item2[1]);
+                        onTrackNext(track2, uris, songs, item2[2]);
+                }
+            }
+        };
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            createChannel();
+            registerReceiver(broadcastReceiver, new IntentFilter("TRACKS_TRACKS"));
+            startService(new Intent(getBaseContext(), OnClearFromRecentService.class));
+        }
+        /**
+         * Events for media player
+         */
         btnnext.setOnClickListener(v -> {
-            position++;
-            if (position <= songs.size() - 1) {
-                try {
-                    mediaPlayer.reset();
-                    mediaPlayer.setDataSource(getApplicationContext(), Uri.parse(uris.get(position).toString()));
-                    mediaPlayer.prepare();
-                    mediaPlayer.start();
-                    String[] item1 = songs.get(position).split(",_");
-                    Track track1 = new Track(item1[2], item1[1]);
-                    CreateNotification.createNotification(ActivityPlayer.this, track1, R.drawable.pause,
-                            position, songs.size() - 1);
-                    txtsname.setText(item1[2]);
-
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            }
+            String[] item1 = songs.get(position).split(",_");
+            Track track1 = new Track(item1[2], item1[1]);
+            onTrackNext(track1, uris, songs, item1[1] + "\n" + item1[0]);
         });
-        btnpre.setOnClickListener(v -> {
-            position--;
-            if (position >= 0) {
-                try {
-                    mediaPlayer.reset();
-                    mediaPlayer.setDataSource(getApplicationContext(), Uri.parse(uris.get(position).toString()));
-                    mediaPlayer.prepare();
-                    mediaPlayer.start();
-                    String[] item12 = songs.get(position).split(",_");
-                    Track track12 = new Track(item12[2], item12[1]);
-                    CreateNotification.createNotification(ActivityPlayer.this, track12, R.drawable.pause,
-                            position, songs.size() - 1);
-                    txtsname.setText(item12[2]);
 
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            }
+        btnpre.setOnClickListener(v -> {
+            String[] item1 = songs.get(position).split(",_");
+            Track track1 = new Track(item1[2], item1[1]);
+            onTrackPrevious(track1, uris, songs, item1[1] + "\n" + item1[0]);
         });
         btnnext.setOnLongClickListener(v -> {
             int p = mediaPlayer.getCurrentPosition();
@@ -172,7 +188,6 @@ public class ActivityPlayer extends AppCompatActivity {
 //        bekbarTimeUpdate(mediaPlayer,);
     }
 
-
 //    public void bekbarTimeUpdate  (MediaPlayer mediaplayer,){
 //        Runnable UpdateSongTime = new Runnable() {
 //            @Override
@@ -194,5 +209,68 @@ public class ActivityPlayer extends AppCompatActivity {
         } else {
             animatorSet.cancel();
         }
+    }
+
+    @Override
+    public void onTrackPrevious(Track track, ArrayList<Uri> uris, ArrayList<String> songs, String sName) {
+        position--;
+        if (position >= 0) {
+            try {
+                mediaPlayer.reset();
+                mediaPlayer.setDataSource(getApplicationContext(), Uri.parse(uris.get(position).toString()));
+                mediaPlayer.prepare();
+                mediaPlayer.start();
+                CreateNotification.createNotification(ActivityPlayer.this, track, R.drawable.skip_previous,
+                        position, songs.size() - 1);
+                txtsname.setText(sName);
+
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+    @Override
+    public void onTrackPlay(Track track, ArrayList<Uri> uris, ArrayList<String> songs, String sName) {
+        CreateNotification.createNotification(ActivityPlayer.this, track, R.drawable.play,
+                position, songs.size() - 1);
+        btnplay.setBackgroundResource(R.drawable.play);
+        startAnimation(mediaPlayer.isPlaying());
+
+    }
+
+    @Override
+    public void onTrackPause(Track track, ArrayList<Uri> uris, ArrayList<String> songs, String sName) {
+        CreateNotification.createNotification(ActivityPlayer.this, track, R.drawable.pause,
+                position, songs.size() - 1);
+        btnplay.setBackgroundResource(R.drawable.pause);
+        startAnimation(mediaPlayer.isPlaying());
+    }
+
+    @Override
+    public void onTrackNext(Track track, ArrayList<Uri> uris, ArrayList<String> songs, String sName) {
+        position++;
+        if (position <= songs.size() - 1) {
+            try {
+                mediaPlayer.reset();
+                mediaPlayer.setDataSource(getApplicationContext(), Uri.parse(uris.get(position).toString()));
+                mediaPlayer.prepare();
+                mediaPlayer.start();
+                CreateNotification.createNotification(ActivityPlayer.this, track, R.drawable.skip_next,
+                        position, songs.size() - 1);
+                txtsname.setText(sName);
+
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O)
+            notificationManager.cancelAll();
+        unregisterReceiver(broadcastReceiver);
     }
 }

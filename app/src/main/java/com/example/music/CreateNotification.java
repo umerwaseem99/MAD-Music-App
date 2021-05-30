@@ -1,7 +1,9 @@
 package com.example.music;
 
 import android.app.Notification;
+import android.app.PendingIntent;
 import android.content.Context;
+import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.Build;
@@ -10,11 +12,14 @@ import android.support.v4.media.session.MediaSessionCompat;
 import androidx.core.app.NotificationCompat;
 import androidx.core.app.NotificationManagerCompat;
 
+import com.example.music.Services.NotificationActionService;
+
 public class CreateNotification {
-    public static final String CHANNNEL_ID = "channel1";
-    public static final String CHANNEL_PREVIOUS = "actionprevious";
-    public static final String CHANNEL_PLAY = "actionplay";
-    public static final String CHANNNEL_NEXT = "actionnext";
+    public static final String CHANNEL_ID = "channel1";
+
+    public static final String ACTION_PREVIOUS = "actionprevious";
+    public static final String ACTION_PLAY = "actionplay";
+    public static final String ACTION_NEXT = "actionnext";
 
     public static Notification notification;
 
@@ -25,14 +30,59 @@ public class CreateNotification {
 
             Bitmap icon = BitmapFactory.decodeResource(context.getResources(), R.drawable.logo);
 
+            PendingIntent pendingIntentPrev;
+            int drw_prev;
+            /**
+             * for previous button
+             */
+            if (pos == 0) {
+                pendingIntentPrev = null;
+                drw_prev = 0;
+            } else {
+                Intent intentPrevious = new Intent(context, NotificationActionService.class)
+                        .setAction(ACTION_PREVIOUS);
+                pendingIntentPrev = PendingIntent.getBroadcast(context, 0,
+                        intentPrevious, PendingIntent.FLAG_UPDATE_CURRENT);
+                drw_prev = R.drawable.skip_previous;
+            }
+            /**
+             * for play pause button
+             */
+            Intent intentPlay = new Intent(context, NotificationActionService.class)
+                    .setAction(ACTION_PLAY);
+            PendingIntent pendingIntentPlay = PendingIntent.getBroadcast(context, 0,
+                    intentPlay, PendingIntent.FLAG_UPDATE_CURRENT);
+
+            /**
+             * for next button
+             */
+            PendingIntent pendingIntentNext;
+            int drw_next;
+            if (pos == size) {
+                pendingIntentNext = null;
+                drw_next = 0;
+            } else {
+                Intent intentNext = new Intent(context, NotificationActionService.class)
+                        .setAction(ACTION_NEXT);
+                pendingIntentNext = PendingIntent.getBroadcast(context, 0,
+                        intentNext, PendingIntent.FLAG_UPDATE_CURRENT);
+                drw_next = R.drawable.skip_next;
+            }
+
 //            create notification
-            notification = new NotificationCompat.Builder(context, CHANNNEL_ID)
+            notification = new NotificationCompat.Builder(context, CHANNEL_ID)
                     .setSmallIcon(R.drawable.ic_music)
                     .setContentTitle(track.getTitle())
                     .setContentText(track.getArtist())
                     .setLargeIcon(icon)
                     .setOnlyAlertOnce(true) // show notification for only first time
                     .setShowWhen(false)
+                    .addAction(drw_prev, "Previous", pendingIntentPrev)
+                    .addAction(playbutton, "Play", pendingIntentPlay)
+                    .addAction(drw_next, "Next", pendingIntentNext)
+                    .setStyle(new androidx.media.app.NotificationCompat.MediaStyle()
+                            .setShowActionsInCompactView(0, 1, 2)
+                            .setMediaSession(mediaSessionCompat.getSessionToken()))
                     .setPriority(NotificationCompat.PRIORITY_LOW)
                     .build();
             notificationManagerCompat.notify(1, notification);
