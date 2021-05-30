@@ -19,11 +19,10 @@ import android.widget.TextView;
 
 import com.gauravk.audiovisualizer.visualizer.BarVisualizer;
 
-import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 
-public class Activityplayer extends AppCompatActivity {
+public class ActivityPlayer extends AppCompatActivity {
 
     Button btnplay, btnnext, btnpre;
     TextView txtsname, txtstart, txtstop;
@@ -36,7 +35,6 @@ public class Activityplayer extends AppCompatActivity {
     public static final String EXTRA_NAME = "song_name";
     MediaPlayer mediaPlayer;
     int position;
-//    ArrayList<File> mySongs;
 
     private void createChannel() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
@@ -87,76 +85,72 @@ public class Activityplayer extends AppCompatActivity {
          */
         String[] item = songs.get(position).split(",_");
         Track track = new Track(item[2], item[1]);
-        CreateNotification.createNotification(Activityplayer.this, track, R.drawable.pause,
+        CreateNotification.createNotification(ActivityPlayer.this, track, R.drawable.pause,
                 position, songs.size() - 1);
 
-        startAnimation();
+        startAnimation(mediaPlayer.isPlaying());
         btnplay.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 if (mediaPlayer.isPlaying()) {
                     btnplay.setBackgroundResource(R.drawable.play);
+                    startAnimation(mediaPlayer.isPlaying());
                     mediaPlayer.pause();
                 } else {
                     btnplay.setBackgroundResource(R.drawable.pause);
+                    startAnimation(mediaPlayer.isPlaying());
                     mediaPlayer.start();
                 }
             }
         });
 
-        btnnext.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                position++;
-                if (position <= songs.size() - 1) {
-                    try {
-                        mediaPlayer.reset();
-                        mediaPlayer.setDataSource(getApplicationContext(), Uri.parse(uris.get(position).toString()));
-                        mediaPlayer.prepare();
-                        mediaPlayer.start();
-                        String tem = songs.get(position).split(",_")[2].toString();
-                        txtsname.setText(tem);
+        btnnext.setOnClickListener(v -> {
+            position++;
+            if (position <= songs.size() - 1) {
+                try {
+                    mediaPlayer.reset();
+                    mediaPlayer.setDataSource(getApplicationContext(), Uri.parse(uris.get(position).toString()));
+                    mediaPlayer.prepare();
+                    mediaPlayer.start();
+                    String[] item1 = songs.get(position).split(",_");
+                    Track track1 = new Track(item1[2], item1[1]);
+                    CreateNotification.createNotification(ActivityPlayer.this, track1, R.drawable.pause,
+                            position, songs.size() - 1);
+                    txtsname.setText(item1[2]);
 
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
+                } catch (IOException e) {
+                    e.printStackTrace();
                 }
             }
         });
-        btnpre.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                position--;
-                if (position >= 0) {
-                    try {
-                        mediaPlayer.reset();
-                        mediaPlayer.setDataSource(getApplicationContext(), Uri.parse(uris.get(position).toString()));
-                        mediaPlayer.prepare();
-                        mediaPlayer.start();
-                        String tem = songs.get(position).split(",_")[2].toString();
-                        txtsname.setText(tem);
+        btnpre.setOnClickListener(v -> {
+            position--;
+            if (position >= 0) {
+                try {
+                    mediaPlayer.reset();
+                    mediaPlayer.setDataSource(getApplicationContext(), Uri.parse(uris.get(position).toString()));
+                    mediaPlayer.prepare();
+                    mediaPlayer.start();
+                    String[] item12 = songs.get(position).split(",_");
+                    Track track12 = new Track(item12[2], item12[1]);
+                    CreateNotification.createNotification(ActivityPlayer.this, track12, R.drawable.pause,
+                            position, songs.size() - 1);
+                    txtsname.setText(item12[2]);
 
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
+                } catch (IOException e) {
+                    e.printStackTrace();
                 }
             }
         });
-        btnnext.setOnLongClickListener(new View.OnLongClickListener() {
-            @Override
-            public boolean onLongClick(View v) {
-                int p = mediaPlayer.getCurrentPosition();
-                mediaPlayer.seekTo(p + 5000);
-                return true;
-            }
+        btnnext.setOnLongClickListener(v -> {
+            int p = mediaPlayer.getCurrentPosition();
+            mediaPlayer.seekTo(p + 5000);
+            return true;
         });
-        btnpre.setOnLongClickListener(new View.OnLongClickListener() {
-            @Override
-            public boolean onLongClick(View v) {
-                int p = mediaPlayer.getCurrentPosition();
-                mediaPlayer.seekTo(p - 5000);
-                return true;
-            }
+        btnpre.setOnLongClickListener(v -> {
+            int p = mediaPlayer.getCurrentPosition();
+            mediaPlayer.seekTo(p - 5000);
+            return true;
         });
         sekbar.setMax(mediaPlayer.getDuration());
         sekbar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
@@ -190,11 +184,15 @@ public class Activityplayer extends AppCompatActivity {
 //
 //    }
 
-    public void startAnimation() {
+    public void startAnimation(Boolean isPlaying) {
         ObjectAnimator animator = ObjectAnimator.ofFloat(playerimage, "rotation", 0f, 360f);
-        animator.setDuration(1000);
+//        animator.setDuration();
         AnimatorSet animatorSet = new AnimatorSet();
         animatorSet.playTogether(animator);
-        animatorSet.start();
+        if (isPlaying) {
+            animatorSet.start();
+        } else {
+            animatorSet.cancel();
+        }
     }
 }

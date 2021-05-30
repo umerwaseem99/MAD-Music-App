@@ -1,4 +1,4 @@
-package com.example.music;
+ package com.example.music;
 
 import java.util.ArrayList;
 
@@ -131,7 +131,7 @@ public class MusicList extends AppCompatActivity {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 String songName = (String) listView.getItemAtPosition(position);
-                startActivity(new Intent(getApplicationContext(), Activityplayer.class).putExtra("uris", finalUris).putExtra("songs", items).putExtra("songname", songName).putExtra("pos", position));
+                startActivity(new Intent(getApplicationContext(), ActivityPlayer.class).putExtra("uris", finalUris).putExtra("songs", items).putExtra("songname", songName).putExtra("pos", position));
             }
         });
     }
