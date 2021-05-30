@@ -129,16 +129,6 @@
                 android:background="@drawable/skip_previous"
                 app:backgroundTint="#FFE0B2" />
 
-            <com.gauravk.audiovisualizer.visualizer.BarVisualizer xmlns:custom="http://schemas.android.com/apk/res-auto"
-                android:id="@+id/bar"
-                android:layout_width="match_parent"
-                android:layout_height="60dp"
-                android:layout_alignParentBottom="true"
-                custom:avColor="#FF362E"
-                custom:avDensity="0.6"
-                custom:avSpeed="normal"
-                custom:avWidth="4dp" />
-
         </RelativeLayout>
 
 

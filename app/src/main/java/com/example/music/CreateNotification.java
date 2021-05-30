@@ -8,7 +8,6 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.Build;
 import android.support.v4.media.session.MediaSessionCompat;
-
 import androidx.core.app.NotificationCompat;
 import androidx.core.app.NotificationManagerCompat;
 
@@ -52,6 +51,7 @@ public class CreateNotification {
                     .setAction(ACTION_PLAY);
             PendingIntent pendingIntentPlay = PendingIntent.getBroadcast(context, 0,
                     intentPlay, PendingIntent.FLAG_UPDATE_CURRENT);
+                playbutton =R.drawable.play;
 
             /**
              * for next button
@@ -83,7 +83,7 @@ public class CreateNotification {
                     .setStyle(new androidx.media.app.NotificationCompat.MediaStyle()
                             .setShowActionsInCompactView(0, 1, 2)
                             .setMediaSession(mediaSessionCompat.getSessionToken()))
-                    .setPriority(NotificationCompat.PRIORITY_LOW)
+                    .setPriority(NotificationCompat.PRIORITY_HIGH)
                     .build();
             notificationManagerCompat.notify(1, notification);
         }
