@@ -22,7 +22,6 @@ import android.widget.SeekBar;
 import android.widget.TextView;
 
 import com.example.music.Services.OnClearFromRecentService;
-import com.gauravk.audiovisualizer.visualizer.BarVisualizer;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -32,7 +31,6 @@ public class ActivityPlayer extends AppCompatActivity implements Playable {
     Button btnplay, btnnext, btnpre;
     TextView txtsname, txtstart, txtstop;
     SeekBar sekbar;
-    BarVisualizer visualizer;
     ImageView playerimage;
     String sname;
     NotificationManager notificationManager;
@@ -44,7 +42,7 @@ public class ActivityPlayer extends AppCompatActivity implements Playable {
     private void createChannel() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             NotificationChannel channel = new NotificationChannel(
-                    CreateNotification.CHANNEL_ID, "TEST DEV", NotificationManager.IMPORTANCE_LOW);
+                    CreateNotification.CHANNEL_ID, "TEST DEV", NotificationManager.IMPORTANCE_HIGH);
             notificationManager = getSystemService(NotificationManager.class);
             if (notificationManager != null) {
                 notificationManager.createNotificationChannel(channel);
@@ -64,8 +62,8 @@ public class ActivityPlayer extends AppCompatActivity implements Playable {
         txtstart = findViewById(R.id.txtstart);
         txtstop = findViewById(R.id.txtstop);
         sekbar = findViewById(R.id.sekbar);
-        visualizer = findViewById(R.id.bar);
         playerimage = findViewById(R.id.playerimage);
+
 
         if (mediaPlayer != null) {
             mediaPlayer.stop();
@@ -79,20 +77,12 @@ public class ActivityPlayer extends AppCompatActivity implements Playable {
         txtsname.setSelected(true);
         ArrayList<String> songs = (ArrayList) bundle.getParcelableArrayList("songs");
         Uri uri = Uri.parse(uris.get(position).toString());
-        String[] sNameArr = songName.split(",_");
-        sname = sNameArr[1] + "\n" + sNameArr[0];
-        txtsname.setText(sname);
+//        String[] sNameArr = songName.split(",_");
+//        sname = sNameArr[1] + "\n" + sNameArr[0];
+        txtsname.setText(songName);
 
         mediaPlayer = MediaPlayer.create(getApplicationContext(), uri);
         mediaPlayer.start();
-        /* For bar visualizer. Not working currently */
-//        try {
-//            int audioSessionId = mediaPlayer.getAudioSessionId();
-//            if (audioSessionId != -1)
-//                visualizer.setAudioSessionId(audioSessionId);
-//        } catch (Exception e) {
-//            e.printStackTrace();
-//        }
         /**
          * Working on notification
          */
@@ -108,6 +98,7 @@ public class ActivityPlayer extends AppCompatActivity implements Playable {
                 if (mediaPlayer.isPlaying()) {
                     onTrackPlay(track, uris, songs, item[2]);
                     mediaPlayer.pause();
+                    startAnimation(mediaPlayer.isPlaying());
                 } else {
                     onTrackPause(track, uris, songs, item[2]);
                     mediaPlayer.start();
@@ -151,17 +142,21 @@ public class ActivityPlayer extends AppCompatActivity implements Playable {
          * Events for media player
          */
         btnnext.setOnClickListener(v -> {
-            position++;
-            String[] item1 = songs.get(position).split(",_");
-            Track track1 = new Track(item1[2], item1[1]);
-            onTrackNext(track1, uris, songs, item1[1] + "\n" + item1[0]);
+            if (position != songs.size() - 1) {
+                position++;
+                String[] item1 = songs.get(position).split(",_");
+                Track track1 = new Track(item1[2], item1[1]);
+                onTrackNext(track1, uris, songs, item1[1] + "\n" + item1[0]);
+            }
         });
 
         btnpre.setOnClickListener(v -> {
-            position--;
-            String[] item1 = songs.get(position).split(",_");
-            Track track1 = new Track(item1[2], item1[1]);
-            onTrackPrevious(track1, uris, songs, item1[1] + "\n" + item1[0]);
+            if (position != 0) {
+                position--;
+                String[] item1 = songs.get(position).split(",_");
+                Track track1 = new Track(item1[2], item1[1]);
+                onTrackPrevious(track1, uris, songs, item1[1] + "\n" + item1[0]);
+            }
         });
         btnnext.setOnLongClickListener(v -> {
             int p = mediaPlayer.getCurrentPosition();
@@ -190,19 +185,16 @@ public class ActivityPlayer extends AppCompatActivity implements Playable {
 
             }
         });
-//        bekbarTimeUpdate(mediaPlayer,);
     }
 
-//    public void bekbarTimeUpdate  (MediaPlayer mediaplayer,){
-//        Runnable UpdateSongTime = new Runnable() {
-//            @Override
-//            public void run() {
-//                int starttime = mediaplayer.getCurrentPosition();
-//
-//            }
-//        };
-//
-//    }
+    @Override
+    public void onBackPressed() {
+        // do something on back.
+        Intent i = new Intent(this, MusicList.class);
+        startActivity(i);
+        mediaPlayer.stop();
+        mediaPlayer.reset();
+    }
 
     public void startAnimation(Boolean isPlaying) {
         ObjectAnimator animator = ObjectAnimator.ofFloat(playerimage, "rotation", 0f, 360f);
@@ -220,6 +212,7 @@ public class ActivityPlayer extends AppCompatActivity implements Playable {
 
     @Override
     public void onTrackPrevious(Track track, ArrayList<Uri> uris, ArrayList<String> songs, String sName) {
+
         if (position > 0) {
             try {
                 mediaPlayer.reset();
@@ -229,10 +222,11 @@ public class ActivityPlayer extends AppCompatActivity implements Playable {
                 CreateNotification.createNotification(ActivityPlayer.this, track, R.drawable.skip_previous,
                         position, songs.size() - 1);
                 txtsname.setText(sName);
-
             } catch (IOException e) {
                 e.printStackTrace();
             }
+        } else {
+
         }
     }
 
@@ -255,7 +249,7 @@ public class ActivityPlayer extends AppCompatActivity implements Playable {
 
     @Override
     public void onTrackNext(Track track, ArrayList<Uri> uris, ArrayList<String> songs, String sName) {
-        if (position <= songs.size()) {
+        if (position <= songs.size() - 1) {
             try {
                 mediaPlayer.reset();
                 mediaPlayer.setDataSource(getApplicationContext(), Uri.parse(uris.get(position).toString()));
