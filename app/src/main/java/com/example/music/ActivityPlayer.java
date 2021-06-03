@@ -14,6 +14,7 @@ import android.media.MediaPlayer;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Handler;
 import android.view.animation.Animation;
 import android.widget.Button;
 import android.widget.ImageView;
@@ -41,6 +42,7 @@ public class ActivityPlayer extends AppCompatActivity implements Playable {
     MediaPlayer mediaPlayer;
     int position;
     Timer timer;
+    Handler mHandler;
 
     private void createChannel() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
@@ -66,7 +68,7 @@ public class ActivityPlayer extends AppCompatActivity implements Playable {
         txtstop = findViewById(R.id.txtstop);
         sekbar = findViewById(R.id.sekbar);
         playerimage = findViewById(R.id.playerimage);
-
+        mHandler = new Handler();
         Objects.requireNonNull(getSupportActionBar()).hide();
 
         if (mediaPlayer != null) {
@@ -179,23 +181,7 @@ public class ActivityPlayer extends AppCompatActivity implements Playable {
             mediaPlayer.seekTo(p - 5000);
             return true;
         });
-        sekbar.setMax(mediaPlayer.getDuration());
-        sekbar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
-            @Override
-            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-                mediaPlayer.seekTo(progress);
-            }
-
-            @Override
-            public void onStartTrackingTouch(SeekBar seekBar) {
-
-            }
-
-            @Override
-            public void onStopTrackingTouch(SeekBar seekBar) {
-
-            }
-        });
+        updateSeekbar();
     }
 
     @Override
@@ -212,8 +198,8 @@ public class ActivityPlayer extends AppCompatActivity implements Playable {
         animator.setDuration(2500);
         animator.setRepeatCount(Animation.INFINITE);
         AnimatorSet animatorSet = new AnimatorSet();
-            animatorSet.playTogether(animator);
-            animatorSet.start();
+        animatorSet.playTogether(animator);
+        animatorSet.start();
 
     }
 
@@ -232,8 +218,8 @@ public class ActivityPlayer extends AppCompatActivity implements Playable {
                         TimeUnit.MILLISECONDS.toSeconds(duration) -
                                 TimeUnit.MINUTES.toSeconds(TimeUnit.MILLISECONDS.toMinutes(duration)));
                 txtstop.setText(time);
-
                 txtsname.setText(sName);
+                updateSeekbar();
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -272,6 +258,7 @@ public class ActivityPlayer extends AppCompatActivity implements Playable {
                                 TimeUnit.MINUTES.toSeconds(TimeUnit.MILLISECONDS.toMinutes(duration)));
                 txtstop.setText(time);
                 txtsname.setText(sName);
+                updateSeekbar();
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -304,5 +291,39 @@ public class ActivityPlayer extends AppCompatActivity implements Playable {
                 });
             }
         }, 0, 1000);
+    }
+
+    public void updateSeekbar() {
+        sekbar.setMax(mediaPlayer.getDuration());
+        ActivityPlayer.this.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                if (mediaPlayer != null) {
+                    int currentPosition = mediaPlayer.getCurrentPosition();
+                    sekbar.setProgress(currentPosition);
+                }
+                mHandler.postDelayed(this, 1000);
+            }
+        });
+        sekbar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+            @Override
+            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+                if (fromUser) {
+                    mediaPlayer.seekTo(progress);
+                }
+                updateTimer();
+            }
+
+            @Override
+            public void onStartTrackingTouch(SeekBar seekBar) {
+
+            }
+
+            @Override
+            public void onStopTrackingTouch(SeekBar seekBar) {
+
+            }
+        });
+
     }
 }
