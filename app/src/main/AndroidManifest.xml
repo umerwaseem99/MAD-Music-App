@@ -11,7 +11,7 @@
         android:label="@string/app_name"
         android:roundIcon="@drawable/logo"
         android:screenOrientation="portrait"
-        android:supportsRtl="true"
+        android:supportsRtl="false"
         android:theme="@style/Theme.Music">
         <activity android:name=".ActivityPlayer" />
         <receiver android:name=".Services.NotificationActionService" />

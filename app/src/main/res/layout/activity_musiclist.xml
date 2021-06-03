@@ -4,7 +4,8 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#FFF3E0"
+    android:alpha="0.7"
+    android:background="@drawable/musicback"
     tools:context=".MusicList">
 
     <TextView
@@ -13,8 +14,8 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="36dp"
         android:width="250dp"
-        android:text="MUSIC LIST"
-        android:textColor="#000000"
+        android:text="My MAD Music"
+        android:textColor="#FFFFFF"
         android:textSize="34sp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.099"
@@ -37,7 +38,7 @@
         android:id="@+id/songlist"
         android:layout_width="410dp"
         android:layout_height="631dp"
-        android:layout_marginTop="99dp"
+        android:layout_marginTop="75dp"
         android:layout_marginBottom="1dp"
         android:divider="@android:color/widget_edittext_dark"
         android:dividerHeight="1dp"

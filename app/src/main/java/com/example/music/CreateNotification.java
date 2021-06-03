@@ -22,13 +22,19 @@ public class CreateNotification {
 
     public static Notification notification;
 
-    public static void createNotification(Context context, Track track, int playbutton, int pos, int size) {
+    public static void createNotification(Context context, Track track, int pos, int size) {
+        createNotification(context, track, 0, pos, size);
+    }
+    public static void createNotification(Context context, Track track, int playButton, int pos, int size) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             NotificationManagerCompat notificationManagerCompat = NotificationManagerCompat.from(context);
             MediaSessionCompat mediaSessionCompat = new MediaSessionCompat(context, "tag");
 
             Bitmap icon = BitmapFactory.decodeResource(context.getResources(), R.drawable.logo);
-
+            int iconState = R.drawable.pause;
+            if (playButton != 0) {
+                iconState = playButton;
+            }
             PendingIntent pendingIntentPrev;
             int drw_prev;
             /**
@@ -51,7 +57,6 @@ public class CreateNotification {
                     .setAction(ACTION_PLAY);
             PendingIntent pendingIntentPlay = PendingIntent.getBroadcast(context, 0,
                     intentPlay, PendingIntent.FLAG_UPDATE_CURRENT);
-                playbutton =R.drawable.play;
 
             /**
              * for next button
@@ -78,7 +83,7 @@ public class CreateNotification {
                     .setOnlyAlertOnce(true) // show notification for only first time
                     .setShowWhen(false)
                     .addAction(drw_prev, "Previous", pendingIntentPrev)
-                    .addAction(playbutton, "Play", pendingIntentPlay)
+                    .addAction(iconState, "Play", pendingIntentPlay)
                     .addAction(drw_next, "Next", pendingIntentNext)
                     .setStyle(new androidx.media.app.NotificationCompat.MediaStyle()
                             .setShowActionsInCompactView(0, 1, 2)

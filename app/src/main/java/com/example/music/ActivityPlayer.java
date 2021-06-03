@@ -14,7 +14,6 @@ import android.media.MediaPlayer;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
-import android.view.View;
 import android.view.animation.Animation;
 import android.widget.Button;
 import android.widget.ImageView;
@@ -25,6 +24,10 @@ import com.example.music.Services.OnClearFromRecentService;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Objects;
+import java.util.Timer;
+import java.util.TimerTask;
+import java.util.concurrent.TimeUnit;
 
 public class ActivityPlayer extends AppCompatActivity implements Playable {
 
@@ -32,12 +35,12 @@ public class ActivityPlayer extends AppCompatActivity implements Playable {
     TextView txtsname, txtstart, txtstop;
     SeekBar sekbar;
     ImageView playerimage;
-    String sname;
     NotificationManager notificationManager;
     BroadcastReceiver broadcastReceiver;
     public static final String EXTRA_NAME = "song_name";
     MediaPlayer mediaPlayer;
     int position;
+    Timer timer;
 
     private void createChannel() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
@@ -64,7 +67,7 @@ public class ActivityPlayer extends AppCompatActivity implements Playable {
         sekbar = findViewById(R.id.sekbar);
         playerimage = findViewById(R.id.playerimage);
 
-        getSupportActionBar().hide();
+        Objects.requireNonNull(getSupportActionBar()).hide();
 
         if (mediaPlayer != null) {
             mediaPlayer.stop();
@@ -78,12 +81,16 @@ public class ActivityPlayer extends AppCompatActivity implements Playable {
         txtsname.setSelected(true);
         ArrayList<String> songs = (ArrayList) bundle.getParcelableArrayList("songs");
         Uri uri = Uri.parse(uris.get(position).toString());
-//        String[] sNameArr = songName.split(",_");
-//        sname = sNameArr[1] + "\n" + sNameArr[0];
         txtsname.setText(songName);
 
         mediaPlayer = MediaPlayer.create(getApplicationContext(), uri);
         mediaPlayer.start();
+        int duration = mediaPlayer.getDuration();
+        String time = String.format("%02d:%02d ", TimeUnit.MILLISECONDS.toMinutes(duration),
+                TimeUnit.MILLISECONDS.toSeconds(duration) -
+                        TimeUnit.MINUTES.toSeconds(TimeUnit.MILLISECONDS.toMinutes(duration)));
+        txtstop.setText(time);
+        updateTimer();
         /**
          * Working on notification
          */
@@ -92,19 +99,18 @@ public class ActivityPlayer extends AppCompatActivity implements Playable {
         CreateNotification.createNotification(ActivityPlayer.this, track, R.drawable.pause,
                 position, songs.size() - 1);
 
-        startAnimation(mediaPlayer.isPlaying());
-        btnplay.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (mediaPlayer.isPlaying()) {
-                    onTrackPlay(track, uris, songs, item[2]);
-                    mediaPlayer.pause();
-                    startAnimation(mediaPlayer.isPlaying());
-                } else {
-                    onTrackPause(track, uris, songs, item[2]);
-                    mediaPlayer.start();
-                }
+        startAnimation();
+        btnplay.setOnClickListener(v -> {
+            if (mediaPlayer.isPlaying()) {
+                onTrackPlay(track, uris, songs, item[2]);
+                mediaPlayer.pause();
+                startAnimation();
+            } else {
+                onTrackPause(track, uris, songs, item[2]);
+                mediaPlayer.start();
+                startAnimation();
             }
+            updateTimer();
         });
 
         broadcastReceiver = new BroadcastReceiver() {
@@ -117,6 +123,7 @@ public class ActivityPlayer extends AppCompatActivity implements Playable {
                         String[] item1 = songs.get(position).split(",_");
                         Track track1 = new Track(item1[2], item1[1]);
                         onTrackPrevious(track1, uris, songs, item1[2]);
+                        break;
                     case CreateNotification.ACTION_PLAY:
                         if (mediaPlayer.isPlaying()) {
                             onTrackPause(track, uris, songs, item[2]);
@@ -125,11 +132,14 @@ public class ActivityPlayer extends AppCompatActivity implements Playable {
                             onTrackPlay(track, uris, songs, item[2]);
                             mediaPlayer.stop();
                         }
+                        updateTimer();
+                        break;
                     case CreateNotification.ACTION_NEXT:
                         position++;
                         String[] item2 = songs.get(position).split(",_");
                         Track track2 = new Track(item2[2], item2[1]);
                         onTrackNext(track2, uris, songs, item2[2]);
+                        break;
                 }
             }
         };
@@ -197,37 +207,36 @@ public class ActivityPlayer extends AppCompatActivity implements Playable {
         mediaPlayer.reset();
     }
 
-    public void startAnimation(Boolean isPlaying) {
+    public void startAnimation() {
         ObjectAnimator animator = ObjectAnimator.ofFloat(playerimage, "rotation", 0f, 360f);
         animator.setDuration(2500);
         animator.setRepeatCount(Animation.INFINITE);
         AnimatorSet animatorSet = new AnimatorSet();
-
-        if (isPlaying) {
             animatorSet.playTogether(animator);
             animatorSet.start();
-        } else {
-            animatorSet.cancel();
-        }
+
     }
 
     @Override
     public void onTrackPrevious(Track track, ArrayList<Uri> uris, ArrayList<String> songs, String sName) {
-
         if (position > 0) {
             try {
                 mediaPlayer.reset();
                 mediaPlayer.setDataSource(getApplicationContext(), Uri.parse(uris.get(position).toString()));
                 mediaPlayer.prepare();
                 mediaPlayer.start();
-                CreateNotification.createNotification(ActivityPlayer.this, track, R.drawable.skip_previous,
+                CreateNotification.createNotification(ActivityPlayer.this, track,
                         position, songs.size() - 1);
+                int duration = mediaPlayer.getDuration();
+                String time = String.format("%02d:%02d ", TimeUnit.MILLISECONDS.toMinutes(duration),
+                        TimeUnit.MILLISECONDS.toSeconds(duration) -
+                                TimeUnit.MINUTES.toSeconds(TimeUnit.MILLISECONDS.toMinutes(duration)));
+                txtstop.setText(time);
+
                 txtsname.setText(sName);
             } catch (IOException e) {
                 e.printStackTrace();
             }
-        } else {
-
         }
     }
 
@@ -236,8 +245,7 @@ public class ActivityPlayer extends AppCompatActivity implements Playable {
         CreateNotification.createNotification(ActivityPlayer.this, track, R.drawable.play,
                 position, songs.size() - 1);
         btnplay.setBackgroundResource(R.drawable.play);
-        startAnimation(mediaPlayer.isPlaying());
-
+        startAnimation();
     }
 
     @Override
@@ -245,7 +253,7 @@ public class ActivityPlayer extends AppCompatActivity implements Playable {
         CreateNotification.createNotification(ActivityPlayer.this, track, R.drawable.pause,
                 position, songs.size() - 1);
         btnplay.setBackgroundResource(R.drawable.pause);
-        startAnimation(mediaPlayer.isPlaying());
+        startAnimation();
     }
 
     @Override
@@ -256,10 +264,14 @@ public class ActivityPlayer extends AppCompatActivity implements Playable {
                 mediaPlayer.setDataSource(getApplicationContext(), Uri.parse(uris.get(position).toString()));
                 mediaPlayer.prepare();
                 mediaPlayer.start();
-                CreateNotification.createNotification(ActivityPlayer.this, track, R.drawable.skip_next,
+                CreateNotification.createNotification(ActivityPlayer.this, track,
                         position, songs.size() - 1);
+                int duration = mediaPlayer.getDuration();
+                String time = String.format("%02d:%02d ", TimeUnit.MILLISECONDS.toMinutes(duration),
+                        TimeUnit.MILLISECONDS.toSeconds(duration) -
+                                TimeUnit.MINUTES.toSeconds(TimeUnit.MILLISECONDS.toMinutes(duration)));
+                txtstop.setText(time);
                 txtsname.setText(sName);
-
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -272,5 +284,25 @@ public class ActivityPlayer extends AppCompatActivity implements Playable {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O)
             notificationManager.cancelAll();
         unregisterReceiver(broadcastReceiver);
+    }
+
+    public void updateTimer() {
+        timer = new Timer();
+        timer.scheduleAtFixedRate(new TimerTask() {
+            @Override
+            public void run() {
+                runOnUiThread(() -> {
+                    if (mediaPlayer != null && mediaPlayer.isPlaying()) {
+                        int duration = mediaPlayer.getCurrentPosition();
+                        String time = String.format("%02d:%02d ", TimeUnit.MILLISECONDS.toMinutes(duration), TimeUnit.MILLISECONDS.toSeconds(duration) -
+                                TimeUnit.MINUTES.toSeconds(TimeUnit.MILLISECONDS.toMinutes(duration)));
+                        txtstart.post(() -> txtstart.setText(time));
+                    } else {
+                        timer.cancel();
+                        timer.purge();
+                    }
+                });
+            }
+        }, 0, 1000);
     }
 }

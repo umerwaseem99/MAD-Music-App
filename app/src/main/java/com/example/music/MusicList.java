@@ -1,6 +1,7 @@
 package com.example.music;
 
 import java.util.ArrayList;
+import java.util.concurrent.TimeUnit;
 
 import android.Manifest;
 import android.content.ContentUris;
@@ -83,9 +84,11 @@ public class MusicList extends AppCompatActivity {
         while (cursor.moveToNext()) {
             long id = cursor.getLong(idColumn);
             int time = Integer.parseInt(cursor.getString(5));
-            time = time / (1000 * 60);
-            items.add(cursor.getString(1) + ",_" + cursor.getString(2) + ",_" + cursor.getString(4) + ",_" + time);
-            dis_items.add(cursor.getString(1) + " " + cursor.getString(2) + " " + cursor.getString(4) + " " + time);
+            String finalTime = String.format("%02d:%02d ", TimeUnit.MILLISECONDS.toMinutes(time),
+                    TimeUnit.MILLISECONDS.toSeconds(time) -
+                            TimeUnit.MINUTES.toSeconds(TimeUnit.MILLISECONDS.toMinutes(time)));
+            items.add(cursor.getString(1) + ",_" + cursor.getString(2) + ",_" + cursor.getString(4) + ",_" + finalTime);
+            dis_items.add(cursor.getString(1) + " s" + cursor.getString(2) + " \n" + cursor.getString(4) + " | " + finalTime);
             Uri contentUri = ContentUris.withAppendedId(
                     MediaStore.Audio.Media.EXTERNAL_CONTENT_URI, id);
             uris.add(contentUri);
@@ -105,7 +108,7 @@ public class MusicList extends AppCompatActivity {
 
                     View view = super.getView(position, convertView, parent);
                     TextView text = (TextView) view.findViewById(android.R.id.text1);
-                    text.setTextColor(Color.BLACK);
+                    text.setTextColor(Color.WHITE);
                     return view;
                 }
             };
