@@ -128,11 +128,11 @@ public class ActivityPlayer extends AppCompatActivity implements Playable {
                         break;
                     case CreateNotification.ACTION_PLAY:
                         if (mediaPlayer.isPlaying()) {
+                            onTrackPlay(track, uris, songs, item[2]);
+                            mediaPlayer.pause();
+                        } else {
                             onTrackPause(track, uris, songs, item[2]);
                             mediaPlayer.start();
-                        } else {
-                            onTrackPlay(track, uris, songs, item[2]);
-                            mediaPlayer.stop();
                         }
                         updateTimer();
                         break;
